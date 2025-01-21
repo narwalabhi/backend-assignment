@@ -31,7 +31,7 @@ public class UserH2DbServiceImpl implements UserDbService {
     public Page<User> getAllUsers(Pageable pageable) {
         logger.info("Fetching all users with pagination: {}", pageable);
         Page<User> users = userRepository.findAll(pageable);
-        logger.info("Retrieved {} users.", users.getTotalElements());
+        logger.debug("Retrieved {} users.", users.getTotalElements());
         return users;
     }
 

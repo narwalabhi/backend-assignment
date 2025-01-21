@@ -41,7 +41,7 @@ public class UserLoadingService {
 
             List<User> userEntities = users.stream().map(userMapper::toEntity).toList();
             userDbService.saveAll(userEntities);
-            logger.info("✅ Users successfully loaded and saved to the database. Count: {}", userEntities.size());
+            logger.info("Users successfully loaded and saved to the database. Count: {}", userEntities.size());
 
             return new ApiResponse<>(200, "Users successfully loaded", userEntities.size());
         } catch (RestClientException e) {

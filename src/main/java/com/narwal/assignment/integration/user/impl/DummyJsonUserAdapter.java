@@ -21,12 +21,13 @@ public class DummyJsonUserAdapter implements ExternalUserAdapter {
     private static final Logger logger = LoggerFactory.getLogger(DummyJsonUserAdapter.class);
 
     private final String baseUrl;
-    private final String usersEndpoint = "/users";
+    private final String usersEndpoint;
     private final RestTemplate restTemplate;
 
-    public DummyJsonUserAdapter(@Value("${dummy.api.base.url}") String baseUrl, RestTemplate restTemplate) {
+    public DummyJsonUserAdapter(@Value("${dummy.api.base.url}") String baseUrl, @Value("${dummy.api.userEndpoint}") String usersEndpoint, RestTemplate restTemplate) {
         this.baseUrl = baseUrl;
         this.restTemplate = restTemplate;
+        this.usersEndpoint = usersEndpoint;
     }
 
     @Override
@@ -41,15 +42,13 @@ public class DummyJsonUserAdapter implements ExternalUserAdapter {
 
         try {
             logger.debug("Sending GET request to DummyJson API...");
-            DummyUserApiResponse response = restTemplate.getForObject(url, DummyUserApiResponse.class);
+            DummyUserApiResponse response = makeRequest(url);
 
             if (response != null && response.getUsers() != null) {
                 logger.info("Successfully fetched {} users from DummyJson API.", response.getUsers().size());
                 return response.getUsers();
-            } else {
-                logger.warn("Received an empty response from API.");
-                throw new RuntimeException("Empty response from API.");
             }
+            return List.of();
         } catch (RestClientException e) {
             logger.error("Failed to fetch users from DummyJson API: {}", e.getMessage(), e);
             throw new RestClientException("Error fetching users from DummyJson API.", e);
@@ -57,5 +56,9 @@ public class DummyJsonUserAdapter implements ExternalUserAdapter {
             logger.error("Unexpected error occurred while fetching users from API.", e);
             throw new RuntimeException("Error fetching users from DummyJson API.", e);
         }
+    }
+
+    public DummyUserApiResponse makeRequest(String url) {
+        return restTemplate.getForObject(url, DummyUserApiResponse.class);
     }
 }

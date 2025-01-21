@@ -13,7 +13,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
 
 @RestController
 @RequestMapping("/api/user")
@@ -97,18 +96,16 @@ public class UserController {
     }
 
     @PostMapping("/load")
-    public CompletableFuture<ResponseEntity<ApiResponse<Integer>>> loadUsers() {
+    public ResponseEntity<ApiResponse<Integer>> loadUsers() {
         logger.info("Initiating user data load from external API...");
         ApiResponse<Integer> response = userLoadingService.loadUsers();
 
         if (response.getStatus() == 503) {
             logger.error("Circuit Breaker OPEN - External API unavailable. Returning 503.");
-            return CompletableFuture.completedFuture(
-                    ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(response)
-            );
+            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(response);
         }
 
         logger.info("Users loaded successfully: {} users added.", response.getData());
-        return CompletableFuture.completedFuture(ResponseEntity.ok(response));
+        return ResponseEntity.ok(response);
     }
 }
